@@ -1,41 +1,35 @@
 <?php
 include '../conf_server.php';
 
-$proprio = isset($_POST['proprio']) ? trim($_POST['proprio']) : '';
+$proprio = $_POST['proprio'];
 
+// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Check connection
 if ($conn->connect_error) {
-    die("Erreur de connexion : " . $conn->connect_error);
+die("Connection failed: " . $conn->connect_error);
 }
 
-$conn->set_charset('utf8mb4');
+// Supprimer les probèmes d'encodage UTF8
+$conn->query("SET NAMES UTF8");
 
-if ($proprio === '') {
-    echo "Veuillez saisir un propriétaire.";
-    $conn->close();
-    exit;
-}
 
-$stmt = $conn->prepare("SELECT titre, auteur FROM livres WHERE proprio = ?");
-$stmt->bind_param("s", $proprio);
-$stmt->execute();
-$result = $stmt->get_result();
+$sql = "SELECT  titre, auteur, genre FROM livres WHERE proprio='$proprio' ";
+$result = $conn->query($sql);
 
-echo 'Les livres du propriétaire ' . htmlspecialchars($proprio, ENT_QUOTES, 'UTF-8') . ' sont :';
-echo '<br><br>';
+echo 'Les livres du proprio  sont :';
+echo '<br>';
+echo '<br>';
 
-if ($result->num_rows > 0) {
+if ($result->num_rows >0) {
     while ($row = $result->fetch_assoc()) {
-        echo htmlspecialchars($row["titre"], ENT_QUOTES, 'UTF-8')
-            . ' écrit par '
-            . htmlspecialchars($row["auteur"], ENT_QUOTES, 'UTF-8');
+       echo $row['titre'] . ' écrit par ' . $row['auteur'];
         echo '<br>';
     }
 } else {
-    echo "Aucun livre trouvé pour ce propriétaire.";
+    echo "Aucun  propriétaire.";
 }
 
-$stmt->close();
 $conn->close();
 ?>
